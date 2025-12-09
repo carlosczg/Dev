@@ -1,6 +1,7 @@
 import re
+import sys
 
-def analyze_sql_complexity(file_path):
+def analyze_sql_complexity(file_name):
     # Define regex patterns
     select_pattern = re.compile(r"\bSELECT\b", re.IGNORECASE)
     update_pattern = re.compile(r"\bUPDATE\b", re.IGNORECASE)
@@ -15,11 +16,15 @@ def analyze_sql_complexity(file_path):
     delete_count = 0
     merge_count = 0
     analytic_function_count = 0
-    keywords_count = 0  # To count all SQL-related keywords as an additional metric
+    keywords_count = 0
 
     # Read the SQL file
-    with open(file_path, 'r', encoding='utf-8') as file:
-        sql_content = file.read()
+    try:
+        with open(file_name, 'r', encoding='utf-8') as file:
+            sql_content = file.read()
+    except FileNotFoundError:
+        print(f"Error: El archivo '{file_name}' no existe en la ruta actual.")
+        return
 
     # Count occurrences
     select_count = len(select_pattern.findall(sql_content))
@@ -31,43 +36,29 @@ def analyze_sql_complexity(file_path):
     # Calculate total SQL steps
     total_sql_steps = select_count + update_count + delete_count + merge_count
 
-    # Additional metric: Count keywords (approx. SQL complexity density)
+    # Additional metric: Count keywords (complexity density)
     keywords_pattern = re.compile(r"\b(SELECT|UPDATE|DELETE|INSERT|MERGE|JOIN|WHERE|GROUP BY|ORDER BY|HAVING|CASE|WHEN|THEN|END)\b", re.IGNORECASE)
     keywords_count = len(keywords_pattern.findall(sql_content))
 
     # Calculate complexity score
     complexity_score = min(10, (total_sql_steps + analytic_function_count + (keywords_count // 10)))
-    complexity_explanation = (
-        f"Complejidad puntuación: {complexity_score}/10. La puntuación se basa en el número de pasos SQL ({total_sql_steps}), "
-        f"cantidad de funciones analíticas ({analytic_function_count}) y densidad de palabras clave ({keywords_count} instancias). "
-        f"Un script con varias instrucciones y funciones analíticas tiende a ser más complejo debido a la gestión de datos "
-        f"y cálculos que implica."
-    )
+    complexity_explanation = f"Complejidad: {complexity_score}/10"
 
     # Print results
-    print("Análisis de Complejidad del Script SQL")
-    print("--------------------------------------")
-    print(f"Total de sentencias SELECT: {select_count}")
-    print(f"Total de sentencias UPDATE: {update_count}")
-    print(f"Total de sentencias DELETE: {delete_count}")
-    print(f"Total de sentencias MERGE: {merge_count}")
-    print(f"Total de funciones analíticas SQL: {analytic_function_count}")
-    print(f"Pasos SQL totales: {total_sql_steps}")
-    print(f"Ocurrencias de palabras clave SQL: {keywords_count}")
+    print("Análisis de Complejidad del SQL")
+    print("----------------------------------")
+    print(f"Total SELECTs: {select_count}")
+    print(f"Total UPDATEs: {update_count}")
+    print(f"Total DELETEs: {delete_count}")
+    print(f"Total MERGEs: {merge_count}")
+    print(f"Funciones Analíticas: {analytic_function_count}")
+    print(f"Total pasos SQL: {total_sql_steps}")
+    print(f"Keywords SQL: {keywords_count}")
     print(complexity_explanation)
 
-    return {
-        "select_count": select_count,
-        "update_count": update_count,
-        "delete_count": delete_count,
-        "merge_count": merge_count,
-        "analytic_function_count": analytic_function_count,
-        "total_sql_steps": total_sql_steps,
-        "keywords_count": keywords_count,
-        "complexity_score": complexity_score,
-        "complexity_explanation": complexity_explanation
-    }
-
-# Example usage
-# Replace 'example.sql' with the path to your SQL file
-result = analyze_sql_complexity('example.sql')
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Uso: python sql_complexity_analyzer.py <archivo.sql>")
+    else:
+        file_name = sys.argv[1]
+        analyze_sql_complexity(file_name)
