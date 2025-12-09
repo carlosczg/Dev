@@ -689,4 +689,4 @@ INSERT INTO Work.LogExecute VALUES(GETDATE(), @StoreProcedureName, 'PASO 19: FIN
 END
 GO
 
-MERGE
+MERGE 
