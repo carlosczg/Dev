@@ -1,4 +1,4 @@
-# Documentación del analizador de complejidad SQL XXX
+# Documentación del analizador de complejidad SQL
 
 Este documento explica cómo construimos el archivo `sql_complexity.py`, cómo conectarlo con un repositorio en GitHub, cómo usarlo y qué ideas podemos aplicar para mejorarlo en el futuro.
 
